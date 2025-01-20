@@ -6,7 +6,7 @@
 #    By: tjooris <tjooris@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/01/20 14:10:16 by tjooris           #+#    #+#              #
-#    Updated: 2025/01/20 17:06:19 by tjooris          ###   ########.fr        #
+#    Updated: 2025/01/20 18:37:19 by tjooris          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -124,9 +124,56 @@ SRC	+=	$(addprefix $(INTO_DIR), $(INTO_SRC))
 INTO_DIR	=	into/
 INTO_SRC	=	ft_tolower.c \
 				ft_toupper.c \
+
+#=-=-=-=-=-=-INCLUDES-=-=-=-=-=#
+
+LIB_DIR		=
+LIB_PATH	=
+LIB_PATH	:=	$(addprefix $(LIB_DIR),$(LIB_PATH))
+LIB			=	$(patsubst lib%.a, %, $(notdir $(LIB_PATH)))
+
+INC_DIR		=	include/
+INCLUDES	=	$(INC_DIR) \
+				$(dir $(LIB_PATH))$(INC_DIR)
 			
 #=-=-=-=-=-=-COMPIL-=-=-=-=-=#
 
-CC		=	cc
+CC			=	cc
 
-FLAGS	+=	-Wall -Wextra -Werror
+FLAGS		+=	-Wall -Wextra -Werror
+PPFLAGS		+=	$(addprefix -I, $(INCLUDES)) -MMD -MP
+
+LDFLAGS		+=	$(addprefix -L, $(dir $(LIB_PATH)))
+LDLIB		+=	$(addprefix -l, $(LIB))
+
+AR			=	ar
+ARFLAF		=	-rcs
+
+MAKEFLAG	+=	--no-print-directory
+
+#=-=-=-=-=-=-MODES-=-=-=-=-=#
+
+MODES		:=	debug fsanitize optimize full-optimize
+
+MODES_TRACE	:=	$(BUILD_DIR).modes_trace
+LAST_MOD	:= $(shell cat $(MODES_TRACE) 2>/dev/null)
+
+MODE	?=
+
+ifneq ($(MODE), )
+	BUILD_DIR := $(BUILD_DIR)$(MODE)/
+else
+	BUILD_DIR := $(BUILD_DIR)$(BASE_BUILD_DIR)
+endif
+
+ifeq ($(MODE), debug)
+	CFLAGS = -g3
+else ifeq ($(MODE), fsanitize)
+	CFLAGS = -g3 -fsanitize=address
+else ifeq ($(MODE), optimize)
+	CFLAGS += -O2
+else ifeq ($(MODE), full-optimize)
+	CFLAGS += -O3
+else ifneq ($(MODE),)
+	ERROR = MODE
+endif
