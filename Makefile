@@ -6,7 +6,7 @@
 #    By: tjooris <tjooris@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/01/20 14:10:16 by tjooris           #+#    #+#              #
-#    Updated: 2025/01/20 18:37:19 by tjooris          ###   ########.fr        #
+#    Updated: 2025/01/21 01:56:19 by tjooris          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,15 +15,15 @@ NAME = libft.a
 
 #=-=-=-=-=-=-FILES-=-=-=-=-=-=#
 
-MAKE_DIR	:=	.file/
+MAKE_DIR	:=	.make/
 BUILD_DIR	:=	$(MAKE_DIR)build_$(or $(shell git branch --show-current),default)/
 BASE_DIR	:=	normal/
 
 SRC_DIR		=	src/
 
-OBJ			=	$(patsubst	%.c, $(BUILD_DIR)%.o, $(SRC))
+OBJS			=	$(patsubst	%.c, $(BUILD_DIR)%.o, $(SRC))
 
-DEP			=	$(patsubst	%.c, $(BUILD_DIR)%.d, $(SRC)
+DEPS			=	$(patsubst	%.c, $(BUILD_DIR)%.d, $(SRC))
 
 
 #=-=-=-=-=-=-ROOT-=-=-=-=-=#
@@ -39,7 +39,7 @@ IS_SRC	=	ft_isalnum.c \
 			ft_isalpha.c \
 			ft_isascii.c \
 			ft_isdigit.c \
-			ft_print.c \
+			ft_isprint.c \
 
 #=-=-=-=-=-=-LST-=-=-=-=-=#
 
@@ -48,13 +48,13 @@ SRC	+=	$(addprefix $(LST_DIR), $(LST_SRC))
 LST_DIR	=	lst/
 LST_SRC	=	ft_lstadd_back_bonus.c \
 			ft_lstdelone_bonus.c \
+			ft_lstadd_front_bonus.c \
+			ft_lstclear_bonus.c \
+			ft_lstiter_bonus.c \
+			ft_lstlast_bonus.c \
 			ft_lstmap_bonus.c \
-			ft_lstmap_bonus.c \
-			ft_lstmap_bonus.c \
-			ft_lstmap_bonus.c \
-			ft_lstmap_bonus.c \
-			ft_lstmap_bonus.c \
-			ft_lstmap_bonus.c \
+			ft_lstnew_bonus.c \
+			ft_lstsize_bonus.c \
 
 #=-=-=-=-=-=-MEM-=-=-=-=-=#
 
@@ -167,13 +167,58 @@ else
 endif
 
 ifeq ($(MODE), debug)
-	CFLAGS = -g3
+	FLAGS = -g3
 else ifeq ($(MODE), fsanitize)
-	CFLAGS = -g3 -fsanitize=address
+	FLAGS = -g3 -fsanitize=address
 else ifeq ($(MODE), optimize)
-	CFLAGS += -O2
+	FLAGS += -O2
 else ifeq ($(MODE), full-optimize)
-	CFLAGS += -O3
+	FLAGS += -O3
 else ifneq ($(MODE),)
 	ERROR = MODE
 endif
+
+ifneq ($(LAST_MOD), $(MODE))
+$(NAME): force
+endif
+
+#=-=-=-=-=-=-CAST-=-=-=-=-=#
+
+.PHONY: all clean fclean $(MODE) re help
+
+all: $(NAME)
+
+$(NAME): $(OBJS)
+	@echo $(MODE) > $(MODES_TRACE)
+	$(AR) $(ARFLAF) $(NAME) $(OBJS)
+
+$(BUILD_DIR)%.o: $(SRC_DIR)%.c
+	@mkdir -p $(@D)
+	$(CC) $(PPFLAGS) $(FLAGS) -c $< -o $@
+
+clean fclean:
+	-@for lib in $(LIBS_PATH); do $(MAKE) -s -C $$lib $@; done
+	rm -rf $(MAKE_DIR)
+	@if [ "$@" = "fclean" ]; then rm -f $(NAME) $(MODE_TRACE); fi
+
+re: fclean all
+
+help:
+	@echo "Usage: make [target]"
+	@echo "Targets:"
+	@echo "  all       Build the project"
+	@echo "  clean     Remove object files and dependencies"
+	@echo "  fclean    Remove all build files, binary, and mode trace"
+	@echo "  re        Clean and rebuild"
+
+	.PHONY: print-%
+print-%:
+	@echo $(patsubst print-%,%,$@)=
+	@echo $($(patsubst print-%,%,$@))
+
+.PHONY: force
+force:
+
+-include $(DEPS)
+
+.DEFAULT_GOAL := all
