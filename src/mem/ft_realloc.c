@@ -6,12 +6,13 @@
 /*   By: tjooris <tjooris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/13 10:11:04 by tjooris           #+#    #+#             */
-/*   Updated: 2025/02/13 11:18:31 by tjooris          ###   ########.fr       */
+/*   Updated: 2025/02/13 11:32:19 by tjooris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdlib.h>
-#include <string.h>
+#include <malloc.h>
+#include "libft.h"
 
 void	*ft_realloc(void *ptr, size_t new_size)
 {
