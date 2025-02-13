@@ -6,98 +6,90 @@
 /*   By: tjooris <tjooris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/11 15:10:48 by tjooris           #+#    #+#             */
-/*   Updated: 2024/11/18 13:11:02 by tjooris          ###   ########.fr       */
+/*   Updated: 2025/02/03 20:28:58 by tjooris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-static unsigned int	count_words(char const *str, char c)
+int	word_count(char *s, char c)
 {
-	unsigned int	word;
-	unsigned int	count;
+	int	init;
+	int	i;
+	int	word_count;
 
-	word = 0;
-	count = 0;
-	while (str[count] != 0)
+	init = 0;
+	i = 0;
+	word_count = 0;
+	while (s[i])
 	{
-		if (count == 0 && str[count] != c)
-			word++;
-		else if (count != 0 && str[count - 1] == c && str[count] != c)
-			word++;
-		count++;
+		if (s[i] == c)
+			init = 0;
+		else if (!init)
+		{
+			init = 1;
+			word_count++;
+		}
+		i++;
 	}
-	return (word);
+	return (word_count);
 }
 
-static unsigned int	strlen_c(char const *str, char c)
+int	word_len(int pos, char *s, char c)
 {
-	int	nb;
+	int	i;
 
-	nb = 0;
-	while (str[nb] != '\0' && str[nb] != c)
-		nb++;
-	return (nb);
+	i = 0;
+	while (s[pos] == c && s[pos])
+		pos++;
+	while (s[pos] != c && s[pos])
+	{
+		i++;
+		pos++;
+	}
+	return (i);
 }
 
-static	char	*create_word(char const *str, char c, int n)
+int	ft_strncpy(char *array, int pos, char *s, char c)
 {
-	char			*p;
-	unsigned int	sc;
-	unsigned int	wc;
+	int	i;
 
-	sc = 0;
-	while (n > 0)
+	i = 0;
+	while (s[pos] == c && s[pos])
+		pos++;
+	while (s[pos] != c && s[pos])
 	{
-		if (sc == 0 && str[sc] != c)
-			n--;
-		else if (sc != 0 && str[sc - 1] == c && str[sc] != c)
-			n--;
-		sc++;
+		array[i] = s[pos];
+		i++;
+		pos++;
 	}
-	sc--;
-	p = (char *)malloc(sizeof(char) * (strlen_c(str + sc, c) + 1));
-	if (!p)
+	array[i] = '\0';
+	return (pos);
+}
+
+char	**ft_split(char *s, char c)
+{
+	char	**array;
+	int		len;
+	int		pos;
+	int		i;
+	int		count;
+
+	count = word_count((char *)s, c);
+	pos = 0;
+	array = malloc ((count + 1) * sizeof(char *));
+	if (!array)
 		return (NULL);
-	wc = 0;
-	while (str[sc] != c && str[sc] != 0)
-		p[wc++] = str[sc++];
-	p[wc] = 0;
-	return (p);
-}
-
-static	void	*free_all(char	**tabstr, int i)
-{
-	while (i >= 0)
+	i = 0;
+	while (i < count)
 	{
-		if (tabstr[i] != NULL)
-			free(tabstr[i]);
-		i--;
+		len = word_len(pos, (char *)s, c);
+		array[i] = malloc ((len + 1) * sizeof(char));
+		if (!array[i])
+			return (NULL);
+		pos = ft_strncpy(array[i], pos, (char *)s, c);
+		i++;
 	}
-	free(tabstr);
-	return (NULL);
-}
-
-char	**ft_split(char const *string, char sep)
-{
-	char			**splt;
-	unsigned int	w;
-	int				nb_word;
-
-	if (string == NULL)
-		return (NULL);
-	w = count_words(string, sep);
-	splt = (char **)malloc(sizeof(char *) * (w + 1));
-	if (!splt)
-		return (NULL);
-	nb_word = 0;
-	while (nb_word < (int) w)
-	{
-		splt[nb_word] = create_word(string, sep, nb_word + 1);
-		if (splt[nb_word] == 0)
-			return (free_all(splt, nb_word--));
-		nb_word++;
-	}
-	splt[nb_word] = 0;
-	return (splt);
+	array[i] = NULL;
+	return (array);
 }

@@ -6,7 +6,7 @@
 #    By: tjooris <tjooris@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/01/20 14:10:16 by tjooris           #+#    #+#              #
-#    Updated: 2025/01/21 01:56:19 by tjooris          ###   ########.fr        #
+#    Updated: 2025/02/13 11:19:01 by tjooris          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,16 +15,14 @@ NAME = libft.a
 
 #=-=-=-=-=-=-FILES-=-=-=-=-=-=#
 
-MAKE_DIR	:=	.make/
-BUILD_DIR	:=	$(MAKE_DIR)build_$(or $(shell git branch --show-current),default)/
-BASE_DIR	:=	normal/
+MAKE_DIR    :=  .make/
+BUILD_DIR   :=  $(MAKE_DIR)build_$(or $(shell git branch --show-current),default)/
+BASE_DIR    :=  normal/
 
-SRC_DIR		=	src/
+SRC_DIR     =   src/
 
-OBJS			=	$(patsubst	%.c, $(BUILD_DIR)%.o, $(SRC))
-
-DEPS			=	$(patsubst	%.c, $(BUILD_DIR)%.d, $(SRC))
-
+OBJS        =   $(patsubst %.c, $(BUILD_DIR)%.o, $(SRC))
+DEPS        =   $(patsubst %.c, $(BUILD_DIR)%.d, $(SRC))
 
 #=-=-=-=-=-=-ROOT-=-=-=-=-=#
 
@@ -68,6 +66,16 @@ MEM_SRC =	ft_bzero.c \
 			ft_calloc.c \
 			ft_memcmp.c \
 			ft_memmove.c \
+			ft_realloc.c \
+
+#=-=-=-=-=-=-GNL-=-=-=-=-=#
+
+SRC	+=	$(addprefix $(GNL_DIR), $(GNL_SRC))
+
+
+GNL_DIR +=	get_next_line/
+GNL_SRC +=	get_next_line_utils.c \
+			get_next_line.c \
 
 #=-=-=-=-=-=-PRINTF-=-=-=-=-=#
 
@@ -116,6 +124,11 @@ STRINT_SRC	=	ft_atoi.c \
 				ft_strlcat.c \
 				ft_strncmp.c \
 				ft_substr.c \
+				ft_swap.c \
+				ft_freestr.c \
+				ft_tablen.c \
+				ft_array_size.c \
+				ft_free_array.c \
 
 #=-=-=-=-=-=-TO-=-=-=-=-=#
 
@@ -124,6 +137,13 @@ SRC	+=	$(addprefix $(INTO_DIR), $(INTO_SRC))
 INTO_DIR	=	into/
 INTO_SRC	=	ft_tolower.c \
 				ft_toupper.c \
+
+#=-=-=-=-=-=-ERROR-=-=-=-=-=#
+
+SRC	+=	$(addprefix $(ERROR_DIR), $(ERROR_SRC))
+
+ERROR_DIR	=	error/
+ERROR_SRC	=	ft_error.c \
 
 #=-=-=-=-=-=-INCLUDES-=-=-=-=-=#
 
@@ -196,12 +216,23 @@ $(BUILD_DIR)%.o: $(SRC_DIR)%.c
 	@mkdir -p $(@D)
 	$(CC) $(PPFLAGS) $(FLAGS) -c $< -o $@
 
-clean fclean:
-	-@for lib in $(LIBS_PATH); do $(MAKE) -s -C $$lib $@; done
-	rm -rf $(MAKE_DIR)
-	@if [ "$@" = "fclean" ]; then rm -f $(NAME) $(MODE_TRACE); fi
+$(LIB_PATH): force
+	@$(MAKE) -C $(@D)
 
-re: fclean all
+
+.PHONY: clean
+clean:
+	-for lib in $(dir $(LIB_PATH)); do $(MAKE) -s -C $$lib $@; done
+	rm -rf $(MAKE_DIR)
+
+.PHONY: fclean
+fclean:
+	-for lib in $(dir $(LIB_PATH)); do $(MAKE) -s -C $$lib $@; done
+	rm -rf $(MAKE_DIR) $(NAME)
+
+.PHONY: re
+re: fclean
+	$(MAKE)
 
 help:
 	@echo "Usage: make [target]"
@@ -211,7 +242,7 @@ help:
 	@echo "  fclean    Remove all build files, binary, and mode trace"
 	@echo "  re        Clean and rebuild"
 
-	.PHONY: print-%
+.PHONY: print-%
 print-%:
 	@echo $(patsubst print-%,%,$@)=
 	@echo $($(patsubst print-%,%,$@))

@@ -1,36 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_strdup.c                                        :+:      :+:    :+:   */
+/*   ft_error.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tjooris <tjooris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/11 11:23:52 by tjooris           #+#    #+#             */
-/*   Updated: 2025/02/03 20:31:20 by tjooris          ###   ########.fr       */
+/*   Created: 2025/01/28 15:28:19 by tjooris           #+#    #+#             */
+/*   Updated: 2025/02/12 15:58:24 by tjooris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <stdlib.h>
 #include "libft.h"
 
-char	*ft_strdup(char *s1)
+void	ft_error(void)
 {
-	int		i;
-	char	*s2;
-
-	if (!s1)
-		return (NULL);
-	i = 0;
-	while (s1[i])
-		i++;
-	s2 = malloc((i + 1) * sizeof(char));
-	if (!s2)
-		return (NULL);
-	i = 0;
-	while (s1[i])
-	{
-		s2[i] = s1[i];
-		i++;
-	}
-	s2[i] = '\0';
-	return (s2);
+	ft_putstr_fd("Error\n", 2);
+	exit(EXIT_FAILURE);
 }
